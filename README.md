@@ -1,6 +1,6 @@
 ﻿### MaskTools 2 ###
 
-**Masktools2 v2.2.25 (20200813)**
+**Masktools2 v2.2.26 (20200904)**
 
 mod by pinterf
 
@@ -266,6 +266,7 @@ Example #3 (new, with constants)
   Note #1: Avisynth+ internal precision is 32bit float, masktools2 is double (usually no difference can be seen)
   Note #2: Some keywords (e.g. bit shift) are not available on Avisynth+
   Note #3: Since "Expr" can work only on full sized clips, offX, offY, w and h parameters are ignored.
+  Note #4: Since v2.2.26 this parameter is silently ignored when "Expr" filter is missing from the actual Avisynth host.
    
 - parameter "paramscale" for filters working with threshold-like parameters (v2.2.5-)
   Filters: mt_binarize, mt_edge, mt_inpand, mt_expand, mt_inflate, mt_deflate, mt_motion, mt_logic, mt_clamp
@@ -352,6 +353,10 @@ Original version: tp7's MaskTools 2 repository.
 https://github.com/tp7/masktools/
 
 Changelog
+**v2.2.26 (20200904)
+- mt_lut family: ignore "use_expr" parameter if "Expr" function does not exist in ancient AviSynth versions.
+- more friendly error messages when an exception occurs during "Expr" call.
+
 **v2.2.25 (20200813)
 - Introduce swap1 to swap9, dup0 to dup9 keywords besides dup and swap
 - mt_infix duplicates the expression string when 'dup' found.
