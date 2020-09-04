@@ -32,6 +32,8 @@ protected:
     int nXOffset, nYOffset, nXOffsetUV, nYOffsetUV;
     int nCoreWidth, nCoreHeight, nCoreWidthUV, nCoreHeightUV;
 
+    bool has_avs_expr_support;
+
    virtual void process(int n, const Plane<Byte> &dst, int nPlane, const Frame<const Byte> frames[4], const Constraint constraints[4]) = 0;
    virtual InputConfiguration &input_configuration() const = 0;
 

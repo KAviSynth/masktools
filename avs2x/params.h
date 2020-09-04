@@ -59,13 +59,18 @@ Parameter GetParameter(const AVSValue &value, const Parameter &default_param)
     return parameter;
 }
 
-Parameters GetParameters(const AVSValue &args, const Signature &signature, IScriptEnvironment *env)
+Parameters GetParameters(const AVSValue &args, const Signature &signature, bool has_avs_expr_support, IScriptEnvironment *env)
 {
     Parameters parameters;
 
     UNUSED(env);
 
     for (int i = 0; i < signature.count(); i++) {
+      if (signature[i].getName() == "use_expr" && !has_avs_expr_support) {
+        // v2.26 when no "Expr" support in avisynth then set use_expr to undefined (default 0)
+        parameters.push_back(GetParameter(AVSValue(), signature[i]));
+      }
+      else
         parameters.push_back(GetParameter(args[i], signature[i]));
     }
 

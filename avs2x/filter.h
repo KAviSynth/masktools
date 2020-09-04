@@ -31,7 +31,9 @@ class Filter : public GenericVideoFilter
     static AVSValue __cdecl _create(AVSValue args, void *user_data, IScriptEnvironment *env)
     {
       UNUSED(user_data);
-      return new Filter<T>(args[0].AsClip(), GetParameters(args, T::filter_signature(), env), env);
+      // pass "Expr" existance to override "use_expr" parameter value for old avisynth versions
+      const bool has_avs_expr_support = env->FunctionExists("Expr");
+      return new Filter<T>(args[0].AsClip(), GetParameters(args, T::filter_signature(), has_avs_expr_support, env), env);
     }
 public:
     Filter(::PClip child, const Parameters &parameters, IScriptEnvironment *env) : GenericVideoFilter(child), _filter(parameters, AvsToInternalCpuFlags(env->GetCPUFlags())), signature(T::filter_signature())
@@ -116,9 +118,20 @@ public:
         if (_filter.expr_clamp_float_UV) // only pass when not default false
           new_args[param_length - extra_param_count + 2] = _filter.expr_clamp_float_UV;
 
-        AVSValue clip_out = env->Invoke("Expr", AVSValue(new_args.data(), param_length), arg_names);
-        PVideoFrame dst = clip_out.AsClip()->GetFrame(n, env);
-        return dst;
+        try {
+          AVSValue clip_out = env->Invoke("Expr", AVSValue(new_args.data(), param_length), arg_names);
+          PVideoFrame dst = clip_out.AsClip()->GetFrame(n, env);
+          return dst;
+        }
+        catch (const IScriptEnvironment::NotFound&) {
+          env->ThrowError("masktools2 error on invoking \"Expr\" call with use_expr: not found!");
+        }
+        catch (const AvisynthError& ae) {
+          env->ThrowError("masktools2 error on invoking \"Expr\" call with use_expr: %s\n", ae.msg);
+        }
+        catch (...) {
+          env->ThrowError("masktools2 error on invoking \"Expr\" call with use_expr: C++ exception!");
+        }
       }
 
       // filter is not a lut or lut w/o "Expr" call
